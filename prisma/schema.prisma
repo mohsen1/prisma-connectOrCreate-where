@@ -1,0 +1,38 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+datasource db {
+    provider             = "mysql"
+    url                  = env("DATABASE_URL")
+    referentialIntegrity = "prisma"
+}
+
+generator client {
+    provider        = "prisma-client-js"
+    previewFeatures = ["referentialIntegrity"]
+}
+
+model Tag {
+    id    Int           @id @default(autoincrement())
+    name  String        @unique
+    posts PostsOnTags[]
+}
+
+model PostsOnTags {
+    postId     Int
+    post       Post     @relation(fields: [postId], references: [id])
+    tagId      Int
+    tag        Tag      @relation(fields: [tagId], references: [id])
+    assignedAt DateTime @default(now())
+
+    @@id([postId, tagId])
+}
+
+model Post {
+    id        Int           @id @default(autoincrement())
+    createdAt DateTime      @default(now())
+    updatedAt DateTime      @updatedAt
+    title     String        @db.VarChar(255)
+    content   String        @db.Text()
+    tags      PostsOnTags[]
+}
